@@ -8,6 +8,7 @@ import redis.clients.jedis.SortingParams;
 import redis.clients.util.SafeEncoder;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -365,9 +366,9 @@ public class JedisUtil {
         public long scard(String key) {
             Jedis jedis = JedisUtil.this.getJedis();
             jedis.select(RedisConfig.redisDbnum); // 选择库
-            long status = jedis.scard(key);
+            long count = jedis.scard(key);
             JedisUtil.this.returnJedis(jedis);
-            return status;
+            return count;
         }
 
         /**
@@ -540,6 +541,244 @@ public class JedisUtil {
             long status = jedis.sunionstore(newKey, keys);
             JedisUtil.this.returnJedis(jedis);
             return status;
+        }
+    }
+
+    /**
+     * 对应redis中的sortset
+     */
+    public class SortSet {
+        
+        /**
+         * 将一个成员及其分数值加入key对应的有序集合
+         * @param key
+         * @param score
+         * @param member
+         * @return 
+         * @author qishao
+         * date 2018-09-07
+         */
+        public long zadd(String key, double score, String member) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            jedis.select(RedisConfig.redisDbnum); // 选择库
+            long status = jedis.zadd(key, score, member);
+            JedisUtil.this.returnJedis(jedis);
+            return status;
+        }
+        
+        /**
+         * 将多个成员及其分数值加入key对应的有序集合
+         * @param key
+         * @param scoreMembers
+         * @return 
+         * @author qishao
+         * date 2018-09-07
+         */
+        public long zadd(String key, Map<String, Double> scoreMembers) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            jedis.select(RedisConfig.redisDbnum); // 选择库
+            long status = jedis.zadd(key, scoreMembers);
+            JedisUtil.this.returnJedis(jedis);
+            return status;
+        }
+        
+        /**
+         * 获取此key对应有序集合中元素数量
+         * @param key
+         * @return 
+         * @author qishao
+         * date 2018-09-07
+         */
+        public long zcard(String key) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            jedis.select(RedisConfig.redisDbnum); // 选择库
+            long count = jedis.zcard(key);
+            JedisUtil.this.returnJedis(jedis);
+            return count;
+        }
+        
+        /**
+         * 获取此key对应有序集合中，指定分数区间的元素数量
+         * @param key
+         * @param min
+         * @param max
+         * @return 
+         * @author qishao
+         * date 2018-09-07
+         */
+        public long zcount(String key, double min, double max) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            jedis.select(RedisConfig.redisDbnum); // 选择库
+            long count = jedis.zcount(key, min, max);
+            JedisUtil.this.returnJedis(jedis);
+            return count;
+        }
+
+        /**
+         * 改变指定集合中的某一成员的分数
+         * @param key
+         * @param increment
+         * @param member
+         * @return
+         * @author qishao
+         * date 2018-09-07
+         */
+        public double zincrby(String key, double increment, String member) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            jedis.select(RedisConfig.redisDbnum); // 选择库
+            double score = jedis.zincrby(key, increment, member);
+            JedisUtil.this.returnJedis(jedis);
+            return score;
+        }
+
+        /**
+         * 返回有序集中，指定区间内的成员（升序）
+         * @param key
+         * @param start
+         * @param end
+         * @return 
+         * @author qishao
+         * date 2018-09-07
+         */
+        public Set<String> zrange(String key, int start, int end) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            jedis.select(RedisConfig.redisDbnum); // 选择库
+            Set<String> set = jedis.zrange(key, start, end);
+            JedisUtil.this.returnJedis(jedis);
+            return set;
+        }
+
+        /**
+         * 返回有序集中，指定区间内的成员（降序）
+         * @param key
+         * @param start
+         * @param end
+         * @return
+         * @author qishao
+         * date 2018-09-07
+         */
+        public Set<String> zrevrange(String key, int start, int end) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            jedis.select(RedisConfig.redisDbnum); // 选择库
+            Set<String> set = jedis.zrevrange(key, start, end);
+            JedisUtil.this.returnJedis(jedis);
+            return set;
+        }
+
+        /**
+         * 返回有序集中，指定分数区间内的成员
+         * @param key
+         * @param min
+         * @param max
+         * @return
+         * @author qishao
+         * date 2018-09-07
+         */
+        public Set<String> zrangeByScore(String key, double min, double max) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            jedis.select(RedisConfig.redisDbnum); // 选择库
+            Set<String> set = jedis.zrangeByScore(key, min, max);
+            JedisUtil.this.returnJedis(jedis);
+            return set;
+        }
+        
+        /**
+         * 返回有序集中指定成员的分数排名（升序）
+         * @param key
+         * @param member
+         * @return 
+         * @author qishao
+         * date 2018-09-07
+         */
+        public long zrank(String key, String member) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            jedis.select(RedisConfig.redisDbnum); // 选择库
+            long rank = jedis.zrank(key, member);
+            JedisUtil.this.returnJedis(jedis);
+            return rank;
+        }
+        
+        /**
+         * 返回有序集中指定成员的分数排名（降序）
+         * @param key
+         * @param member
+         * @return 
+         * @author qishao
+         * date 2018-09-07
+         */
+        public long zrevrank(String key, String member) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            jedis.select(RedisConfig.redisDbnum); // 选择库
+            long rank = jedis.zrevrank(key, member);
+            JedisUtil.this.returnJedis(jedis);
+            return rank;
+        }
+
+        /**
+         * 移除有序集合中指定的成员
+         * @param key
+         * @param members
+         * @return 
+         * @author qishao
+         * date 2018-09-07
+         */
+        public long zrem(String key, String... members) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            jedis.select(RedisConfig.redisDbnum); // 选择库
+            long status = jedis.zrem(key, members);
+            JedisUtil.this.returnJedis(jedis);
+            return status;
+        }
+        
+        /**
+         * 移除有序集合中指定排名区间的成员
+         * @param key
+         * @param start
+         * @param end
+         * @return 
+         * @author qishao
+         * date 2018-09-07
+         */
+        public long zremrangeByRank(String key, int start, int end) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            jedis.select(RedisConfig.redisDbnum); // 选择库
+            long status = jedis.zremrangeByRank(key, start, end);
+            JedisUtil.this.returnJedis(jedis);
+            return status;
+        }
+
+        /**
+         * 移除有序集合中指定分数区间的成员
+         * @param key
+         * @param min
+         * @param max
+         * @return
+         * @author qishao
+         * date 2018-09-07
+         */
+        public long zremrangeByScore(String key, double min, double max) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            jedis.select(RedisConfig.redisDbnum); // 选择库
+            long status = jedis.zremrangeByScore(key, min, max);
+            JedisUtil.this.returnJedis(jedis);
+            return status;
+        }
+        
+        /**
+         * 返回有序集中，成员的分数值
+         * 如果没有分数，返回0
+         * @param key
+         * @param member
+         * @return
+         * @author qishao
+         * date 2018-09-07
+         */
+        public double zscore(String key, String member) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            jedis.select(RedisConfig.redisDbnum); // 选择库
+            Double score = jedis.zscore(key, member);
+            JedisUtil.this.returnJedis(jedis);
+            return score != null ? score : 0.0D;
         }
     }
 }
