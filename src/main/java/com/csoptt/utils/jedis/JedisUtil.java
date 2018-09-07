@@ -34,9 +34,9 @@ public class JedisUtil {
      */
     static {
         JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
-        jedisPoolConfig.setMaxTotal(RedisConfig.maxTotal);
-        jedisPoolConfig.setMaxIdle(RedisConfig.maxIdle);
-        jedisPoolConfig.setMaxWaitMillis(RedisConfig.maxWait);
+        jedisPoolConfig.setMaxTotal(RedisConfig.maxTotal == 0 ? 500 : RedisConfig.maxTotal);
+        jedisPoolConfig.setMaxIdle(RedisConfig.maxIdle == 0 ? 5 : RedisConfig.maxIdle);
+        jedisPoolConfig.setMaxWaitMillis(RedisConfig.maxWait == 0L ? 100000L : RedisConfig.maxWait);
         jedisPoolConfig.setTestOnBorrow(RedisConfig.testOnBorrow);
 
         // 判断是否有密码
@@ -44,7 +44,7 @@ public class JedisUtil {
             jedisPool = new JedisPool(jedisPoolConfig,
                     RedisConfig.redisHost,
                     RedisConfig.redisPort,
-                    RedisConfig.timeout,
+                    RedisConfig.timeout == 0 ? 10000 : RedisConfig.timeout,
                     RedisConfig.redisPassword);
         } else {
             jedisPool = new JedisPool(jedisPoolConfig,
@@ -96,6 +96,19 @@ public class JedisUtil {
      */
     public void returnJedis(Jedis jedis) {
         if (jedis != null && jedisPool != null) {
+            jedis.close();
+        }
+    }
+
+    /**
+     * 将jedis返回连接池
+     * @param jedis
+     * @return 
+     * @author qishao
+     * date 2018-09-07
+     */
+    public static void returnBrokenResource(Jedis jedis) {
+        if (null != jedis && null != jedisPool) {
             jedis.close();
         }
     }
@@ -318,6 +331,215 @@ public class JedisUtil {
             Set<String> set = jedis.keys(pattern);
             JedisUtil.this.returnJedis(jedis);
             return set;
+        }
+    }
+
+    /**
+     * 对应redis中的set
+     */
+    public class Sets {
+
+        /**
+         * 向对应key的set中增加成员
+         * @param key
+         * @param member
+         * @return
+         * @author qishao
+         * date 2018-09-07
+         */
+        public long sadd(String key, String... member) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            jedis.select(RedisConfig.redisDbnum); // 选择库
+            long status = jedis.sadd(key, member);
+            JedisUtil.this.returnJedis(jedis);
+            return status;
+        }
+
+        /**
+         * 获取此key对应set中元素的数量
+         * @param key
+         * @return
+         * @author qishao
+         * date 2018-09-07
+         */
+        public long scard(String key) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            jedis.select(RedisConfig.redisDbnum); // 选择库
+            long status = jedis.scard(key);
+            JedisUtil.this.returnJedis(jedis);
+            return status;
+        }
+
+        /**
+         * 返回给定集合之间的差集
+         * @param keys
+         * @return
+         * @author qishao
+         * date 2018-09-07
+         */
+        public Set<String> sdiff(String... keys) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            jedis.select(RedisConfig.redisDbnum); // 选择库
+            Set<String> set = jedis.sdiff(keys);
+            JedisUtil.this.returnJedis(jedis);
+            return set;
+        }
+
+        /**
+         * 将给定集合之间的差集，存入一个新的key中
+         * @param newKey
+         * @param keys
+         * @return 
+         * @author qishao
+         * date 2018-09-07
+         */
+        public long sdiffstore(String newKey, String... keys) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            jedis.select(RedisConfig.redisDbnum); // 选择库
+            long status = jedis.sdiffstore(newKey, keys);
+            JedisUtil.this.returnJedis(jedis);
+            return status;
+        }
+        
+        /**
+         * 返回给定集合之间的交集
+         * @param keys
+         * @return 
+         * @author qishao
+         * date 2018-09-07
+         */
+        public Set<String> sinter(String... keys) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            jedis.select(RedisConfig.redisDbnum); // 选择库
+            Set<String> set = jedis.sinter(keys);
+            JedisUtil.this.returnJedis(jedis);
+            return set;
+        }
+
+        /**
+         * 将给定集合之间的交集，存入一个新的key中
+         * @param newKey
+         * @param keys
+         * @return
+         * @author qishao
+         * date 2018-09-07
+         */
+        public long sinterstore(String newKey, String... keys) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            jedis.select(RedisConfig.redisDbnum); // 选择库
+            long status = jedis.sinterstore(newKey, keys);
+            JedisUtil.this.returnJedis(jedis);
+            return status;
+        }
+
+        /**
+         * 判断成员元素是否是此key对应集合的成员
+         * @param key
+         * @param member
+         * @return 
+         * @author qishao
+         * date 2018-09-07
+         */
+        public boolean sismember(String key, String member) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            jedis.select(RedisConfig.redisDbnum); // 选择库
+            boolean flag = jedis.sismember(key, member);
+            JedisUtil.this.returnJedis(jedis);
+            return flag;
+        }
+
+        /**
+         * 返回该key对应集合
+         * @param key
+         * @return 
+         * @author qishao
+         * date 2018-09-07
+         */
+        public Set<String> smembers(String key) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            jedis.select(RedisConfig.redisDbnum); // 选择库
+            Set<String> set = jedis.smembers(key);
+            JedisUtil.this.returnJedis(jedis);
+            return set;
+        }
+        
+        /**
+         * 将指定成员从fromKey对应集合移动到toKey对应集合
+         * @param fromKey
+         * @param toKey
+         * @param member
+         * @return 
+         * @author qishao
+         * date 2018-09-07
+         */
+        public long smove(String fromKey, String toKey, String member) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            jedis.select(RedisConfig.redisDbnum); // 选择库
+            long status = jedis.smove(fromKey, toKey, member);
+            JedisUtil.this.returnJedis(jedis);
+            return status;
+        }
+
+        /**
+         * 移除并返回集合中的一个随机元素
+         * @param key
+         * @return
+         * @author qishao
+         * date 2018-09-07
+         */
+        public String spop(String key) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            jedis.select(RedisConfig.redisDbnum); // 选择库
+            String member = jedis.spop(key);
+            JedisUtil.this.returnJedis(jedis);
+            return member;
+        }
+
+        /**
+         * 移除集合中的一个或多个成员元素
+         * @param key
+         * @param members
+         * @return 
+         * @author qishao
+         * date 2018-09-07
+         */
+        public long srem(String key, String... members) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            jedis.select(RedisConfig.redisDbnum); // 选择库
+            long status = jedis.srem(key, members);
+            JedisUtil.this.returnJedis(jedis);
+            return status;
+        }
+        
+        /**
+         * 返回给定集合之间的并集
+         * @param keys
+         * @return 
+         * @author qishao
+         * date 2018-09-07
+         */
+        public Set<String> sunion(String... keys) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            jedis.select(RedisConfig.redisDbnum); // 选择库
+            Set<String> set = jedis.sunion(keys);
+            JedisUtil.this.returnJedis(jedis);
+            return set;
+        }
+
+        /**
+         * 将给定集合之间的并集，存入一个新的key中
+         * @param newKey
+         * @param keys
+         * @return
+         * @author qishao
+         * date 2018-09-07
+         */
+        public long sunionstore(String newKey, String... keys) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            jedis.select(RedisConfig.redisDbnum); // 选择库
+            long status = jedis.sunionstore(newKey, keys);
+            JedisUtil.this.returnJedis(jedis);
+            return status;
         }
     }
 }
