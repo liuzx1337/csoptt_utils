@@ -17,6 +17,7 @@
         <java_target_version>1.8</java_target_version>
         <gson_version>2.8.2</gson_version>
         <jedis_version>2.9.0</jedis_version>
+        <lang3_version>3.5</lang3_version>
     </properties>
 
     <dependencies>
@@ -25,6 +26,12 @@
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>${gson_version}</version>
+        </dependency>
+        <!-- lang3 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${lang3_version}</version>
         </dependency>
         <!-- redis -->
         <dependency>

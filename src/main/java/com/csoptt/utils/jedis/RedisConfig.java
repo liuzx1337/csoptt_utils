@@ -3,6 +3,9 @@ package com.csoptt.utils.jedis;
 /**
  * Redis配置
  *
+ * <p>通常可以通过注入等方式，为此类的各个静态变量赋值，并且加载到Redis连接池中</p>
+ * @see JedisUtil
+ *
  * @author qishao
  * @date 2018-09-06
  */
@@ -47,4 +50,9 @@ public class RedisConfig {
      * redis是否进行有效性检查
      */
     public static boolean testOnBorrow;
+
+    /**
+     * redis连接池中连接超时时间
+     */
+    public static int timeout;
 }
