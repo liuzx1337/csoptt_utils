@@ -1,6 +1,8 @@
 package com.csoptt.utils.jedis;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -19,6 +21,11 @@ import java.util.Set;
  * @date 2018-09-06
  */
 public class JedisUtil {
+
+    /**
+     * Log4j
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(JedisUtil.class);
 
     /**
      * singleton
@@ -779,6 +786,55 @@ public class JedisUtil {
             Double score = jedis.zscore(key, member);
             JedisUtil.this.returnJedis(jedis);
             return score != null ? score : 0.0D;
+        }
+    }
+
+    /**
+     * 对应redis中的hash
+     */
+    public class Hash {
+
+        /**
+         * 删除hash中指定field对应的键值对
+         * @param key
+         * @param field
+         * @return 状态
+         * @author liuzixi
+         * date 2018-09-25
+         */
+        public long hdel(String key, String... field) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            long status;
+            try {
+                jedis.select(RedisConfig.redisDbnum); // 选择库
+                status = jedis.hdel(key, field);
+            } catch (Exception e) {
+                status = 0L;
+            } finally {
+                JedisUtil.this.returnJedis(jedis);
+            }
+            return status;
+        }
+
+        /**
+         * 删除指定key对应的hash
+         * @param key
+         * @return
+         * @author liuzixi
+         * date 2018-09-25
+         */
+        public long hdel(String key) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            long status;
+            try {
+                jedis.select(RedisConfig.redisDbnum); // 选择库
+                status = jedis.hdel(key);
+            } catch (Exception e) {
+                status = 0L;
+            } finally {
+                JedisUtil.this.returnJedis(jedis);
+            }
+            return status;
         }
     }
 }
