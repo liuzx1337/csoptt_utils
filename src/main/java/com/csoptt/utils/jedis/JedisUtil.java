@@ -3,6 +3,7 @@ package com.csoptt.utils.jedis;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import redis.clients.jedis.BinaryClient;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -430,6 +431,272 @@ public class JedisUtil {
                 JedisUtil.this.returnJedis(jedis);
             }
             return set;
+        }
+    }
+
+    /**
+     * 对应redis中的List
+     */
+    public class Lists {
+
+        /**
+         * 获取key对应列表的长度
+         * @param key
+         * @return
+         * @author qishao
+         * date 2018-09-27
+         */
+        public long llen(String key) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            long len;
+            try {
+                jedis.select(RedisConfig.redisDbnum); // 选择库
+                len = jedis.llen(key);
+            } catch (Exception e) {
+                LOGGER.error("Get list's length failed.", e);
+                len = -1L;
+            } finally {
+                JedisUtil.this.returnJedis(jedis);
+            }
+            return len;
+        }
+
+        /**
+         * 在列表内的某元素前或者后插入元素
+         * @param key
+         * @param isAfter true为元素pivot之后，false为之前
+         * @param pivot 表内的已有某元素
+         * @param value
+         * @return 
+         * @author qishao
+         * date 2018-09-27
+         */
+        public long linsert(String key, boolean isAfter, String pivot, String value) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            long status;
+            BinaryClient.LIST_POSITION position = isAfter ? BinaryClient.LIST_POSITION.AFTER
+                    : BinaryClient.LIST_POSITION.BEFORE;
+            try {
+                jedis.select(RedisConfig.redisDbnum); // 选择库
+                status = jedis.linsert(key, position, pivot, value);
+            } catch (Exception e) {
+                LOGGER.error("Insert member failed.", e);
+                status = -1L;
+            } finally {
+                JedisUtil.this.returnJedis(jedis);
+            }
+            return status;
+        }
+
+        /**
+         * 通过索引来设置元素的值
+         * @param key
+         * @param index
+         * @param value
+         * @return 
+         * @author qishao
+         * date 2018-09-27
+         */
+        public String lset(String key, long index, String value) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            String status;
+            try {
+                jedis.select(RedisConfig.redisDbnum); // 选择库
+                status = jedis.lset(key, index, value);
+            } catch (Exception e) {
+                LOGGER.error("Set element's value failed.", e);
+                status = "-1";
+            } finally {
+                JedisUtil.this.returnJedis(jedis);
+            }
+            return status;
+        }
+        
+        /**
+         * 通过索引获取列表中的元素
+         * @param key
+         * @param index
+         * @return 
+         * @author qishao
+         * date 2018-09-27
+         */
+        public String lindex(String key, int index) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            String value;
+            try {
+                jedis.select(RedisConfig.redisDbnum); // 选择库
+                value = jedis.lindex(key, index);
+            } catch (Exception e) {
+                LOGGER.error("Get element failed.", e);
+                value = null;
+            } finally {
+                JedisUtil.this.returnJedis(jedis);
+            }
+            return value;
+        }
+        
+        /**
+         * 移除并返回列表的第一个元素
+         * @param key
+         * @return
+         * @author qishao
+         * date 2018-09-27
+         */
+        public String lpop(String key) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            String value;
+            try {
+                jedis.select(RedisConfig.redisDbnum); // 选择库
+                value = jedis.lpop(key);
+            } catch (Exception e) {
+                LOGGER.error("Delete first element failed.", e);
+                value = null;
+            } finally {
+                JedisUtil.this.returnJedis(jedis);
+            }
+            return value;
+        }
+
+        /**
+         * 移除并返回列表的最后一个元素
+         * @param key
+         * @return
+         * @author qishao
+         * date 2018-09-27
+         */
+        public String rpop(String key) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            String value;
+            try {
+                jedis.select(RedisConfig.redisDbnum); // 选择库
+                value = jedis.rpop(key);
+            }catch (Exception e){
+                LOGGER.error("Delete last elememt failed.", e);
+                value = null;
+            }finally {
+                JedisUtil.this.returnJedis(jedis);
+            }
+            return value;
+        }
+
+        /**
+         * 将一个或多个值插入到列表头部
+         * @param key
+         * @param values
+         * @return 
+         * @author qishao
+         * date 2018-09-27
+         */
+        public long lpush(String key, String... values) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            long status;
+            try {
+                jedis.select(RedisConfig.redisDbnum); // 选择库
+                status = jedis.lpush(key, values);
+            } catch (Exception e) {
+                LOGGER.error("Push elements to first failed.", e);
+                status = -1L;
+            } finally {
+                JedisUtil.this.returnJedis(jedis);
+            }
+            return status;
+        }
+        
+        /**
+         * 将一个或多个值插入到列表尾部
+         * @param key
+         * @param values
+         * @return
+         * @author qishao
+         * date 2018-09-27
+         */
+        public long rpush(String key, String... values) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            long status;
+            try {
+                jedis.select(RedisConfig.redisDbnum); // 选择库
+                status = jedis.rpush(key, values);
+            } catch (Exception e) {
+                LOGGER.error("Push elements to last failed.", e);
+                status = -1L;
+            } finally {
+                JedisUtil.this.returnJedis(jedis);
+            }
+            return status;
+        }
+
+        /**
+         * 返回列表中指定区间内的元素
+         * @param key
+         * @param start
+         * @param end
+         * @return
+         * @author qishao
+         * date 2018-09-27
+         */
+        public List<String> lrange(String key, long start, long end) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            List<String> list;
+            try {
+                jedis.select(RedisConfig.redisDbnum); // 选择库
+                list = jedis.lrange(key, start, end);
+            } catch (Exception e) {
+                LOGGER.error("Get elements between " + start + " and " + end + " failed.", e);
+                list = null;
+            } finally {
+                JedisUtil.this.returnJedis(jedis);
+            }
+            return list;
+        }
+
+        /**
+         * 移除列表中与参数 VALUE 相等的元素
+         * @param key
+         * @param count 大于0：从表头开始向表尾搜索，移除与 VALUE 相等的元素，数量为 COUNT
+         *              小于0：从表尾开始向表头搜索，移除与 VALUE 相等的元素，数量为 COUNT 的绝对值
+         *              等于0：移除表中所有与 VALUE 相等的值
+         * @param value
+         * @return
+         * @author qishao
+         * date 2018-09-27
+         */
+        public long lrem(String key, int count, String value) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            long status;
+            try {
+                jedis.select(RedisConfig.redisDbnum); // 选择库
+                status = jedis.lrem(key, count, value);
+            } catch (Exception e) {
+                LOGGER.error("Delete elements failed.", e);
+                status = -1L;
+            } finally {
+                JedisUtil.this.returnJedis(jedis);
+            }
+            return status;
+        }
+
+        /**
+         * 让列表只保留指定区间内的元素
+         * @param key
+         * @param start
+         * @param end
+         * @return 
+         * @author qishao
+         * date 2018-09-27
+         */
+        public String ltrim(String key, int start, int end) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            String status;
+            try {
+                jedis.select(RedisConfig.redisDbnum); // 选择库
+                status = jedis.ltrim(key, start, end);
+            } catch (Exception e) {
+                LOGGER.error("Trim list failed.", e);
+                status = "-1";
+            } finally {
+                JedisUtil.this.returnJedis(jedis);
+            }
+            return status;
         }
     }
 
@@ -1192,7 +1459,7 @@ public class JedisUtil {
          * 从一个hash中获取所有的key
          * @param key
          * @return 
-         * @author liuzixi
+         * @author qishao
          * date 2018-09-27
          */
         public Set<String> hkeys(String key) {
@@ -1214,7 +1481,7 @@ public class JedisUtil {
          * 从一个hash中获取所有的value
          * @param key
          * @return
-         * @author liuzixi
+         * @author qishao
          * date 2018-09-27
          */
         public List<String> hvals(String key) {
@@ -1237,7 +1504,7 @@ public class JedisUtil {
          * @param key
          * @param fields
          * @return 
-         * @author liuzixi
+         * @author qishao
          * date 2018-09-27
          */
         public List<String> hmget(String key, String... fields) {
@@ -1284,7 +1551,7 @@ public class JedisUtil {
          * @param key
          * @param map
          * @return
-         * @author liuzixi
+         * @author qishao
          * date 2018-09-27
          */
         public String hmset(String key, Map<String, String> map) {
@@ -1308,7 +1575,7 @@ public class JedisUtil {
          * @param field
          * @param value
          * @return
-         * @author liuzixi
+         * @author qishao
          * date 2018-09-27
          */
         public long hsetnx(String key, String field, String value) {
@@ -1332,7 +1599,7 @@ public class JedisUtil {
          * @param field
          * @param incr
          * @return 
-         * @author liuzixi
+         * @author qishao
          * date 2018-09-27
          */
         public long hincrby(String key, String field, long incr) {
@@ -1354,7 +1621,7 @@ public class JedisUtil {
          * 获取hash中字段数量
          * @param key
          * @return 
-         * @author liuzixi
+         * @author qishao
          * date 2018-09-27
          */
         public long hlen(String key) {
