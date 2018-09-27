@@ -20,6 +20,7 @@
         <lang3_version>3.5</lang3_version>
         <dozer.version>5.4.0</dozer.version>
         <slf4j.version>1.7.25</slf4j.version>
+        <http_version>4.5.3</http_version>
     </properties>
 
     <dependencies>
@@ -72,6 +73,12 @@
             <groupId>org.codehaus.sonar</groupId>
             <artifactId>sonar-ws-client</artifactId>
             <version>2.11</version>
+        </dependency>
+        <!-- httpclient -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${http_version}</version>
         </dependency>
     </dependencies>
 
