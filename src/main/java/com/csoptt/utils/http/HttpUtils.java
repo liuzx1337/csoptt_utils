@@ -21,6 +21,7 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -97,25 +98,21 @@ public class HttpUtils {
     }
 
     /**
-     * 关闭客户端
-     * @param client
-     * @param response
+     * 关闭
+     * @param closeables
      * @author qishao
      * date 2018-09-28
      */
-    private static void close(CloseableHttpClient client, CloseableHttpResponse response) {
-        if (null != client) {
-            try {
-                client.close();
-            } catch (IOException e) {
-                LOGGER.error("Close httpClient failed.", e);
-            }
-        }
-        if (null != response) {
-            try {
-                response.close();
-            } catch (IOException e) {
-                LOGGER.error("Close httpResponse failed.", e);
+    private static void close(Closeable... closeables) {
+        if (CollectionUtils.isNotEmpty(closeables)) {
+            for (Closeable closeable : closeables) {
+                if (null != closeable) {
+                    try {
+                        closeable.close();
+                    } catch (IOException e) {
+                        LOGGER.error("Close resource failed", e);
+                    }
+                }
             }
         }
     }
