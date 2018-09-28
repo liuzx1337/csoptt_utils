@@ -1,5 +1,6 @@
 package com.csoptt.utils.jedis;
 
+import com.csoptt.utils.common.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,7 @@ import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.SortingParams;
 import redis.clients.util.SafeEncoder;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -431,6 +433,338 @@ public class JedisUtil {
                 JedisUtil.this.returnJedis(jedis);
             }
             return set;
+        }
+    }
+
+    /**
+     * 对应redis中的String
+     */
+    public class Strings {
+        
+        /**
+         * 获取指定key的值
+         * @param key
+         * @return
+         * @author qishao
+         * date 2018-09-28
+         */
+        public String get(String key) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            String value;
+            try {
+                jedis.select(RedisConfig.redisDbnum); // 选择库
+                value = jedis.get(key);
+            } catch (Exception e) {
+                LOGGER.error("Get String value failed.", e);
+                value = null;
+            } finally {
+                JedisUtil.this.returnJedis(jedis);
+            }
+            return value;
+        }
+        
+        /**
+         * 获取所有指定key的值
+         * @param keys
+         * @return
+         * @author qishao
+         * date 2018-09-28
+         */
+        public List<String> mget(String... keys) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            List<String> values;
+            try {
+                jedis.select(RedisConfig.redisDbnum); // 选择库
+                values = jedis.mget(keys);
+            } catch (Exception e) {
+                LOGGER.error("Get values failed.", e);
+                values = null;
+            } finally {
+                JedisUtil.this.returnJedis(jedis);
+            }
+            return values;
+        }
+
+        /**
+         * 设置给定key的值
+         * @param key
+         * @param value
+         * @return
+         * @author qishao
+         * date 2018-09-28
+         */
+        public String set(String key, String value) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            String status;
+            try {
+                jedis.select(RedisConfig.redisDbnum); // 选择库
+                status = jedis.set(key, value);
+            } catch (Exception e) {
+                LOGGER.error("Set key's value failed.", e);
+                status = "-1";
+            } finally {
+                JedisUtil.this.returnJedis(jedis);
+            }
+            return status;
+        }
+        
+        /**
+         * 设置给定key的值
+         * 与命令set相比，此命令不会覆盖原有key
+         * @param key
+         * @param value
+         * @return
+         * @author qishao
+         * date 2018-09-28
+         */
+        public long setnx(String key, String value) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            long status;
+            try {
+                jedis.select(RedisConfig.redisDbnum); // 选择库
+                status = jedis.setnx(key, value);
+            } catch (Exception e) {
+                LOGGER.error("Set key's value failed.", e);
+                status = 0L;
+            } finally {
+                JedisUtil.this.returnJedis(jedis);
+            }
+            return status;
+        }
+
+        /**
+         * 为指定的key设置值及其过期时间
+         * @param key
+         * @param value
+         * @param seconds
+         * @return 
+         * @author qishao
+         * date 2018-09-28
+         */
+        public String setex(String key, String value, int seconds) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            String status;
+            try {
+                jedis.select(RedisConfig.redisDbnum); // 选择库
+                status = jedis.setex(key, seconds, value);
+            } catch (Exception e) {
+                LOGGER.error("Setex key's value failed.", e);
+                status = "-1";
+            } finally {
+                JedisUtil.this.returnJedis(jedis);
+            }
+            return status;
+        }
+
+        /**
+         * 为多个key赋值
+         * @param keysvalues
+         * @return
+         * @author qishao
+         * date 2018-09-28
+         */
+        public String mset(String... keysvalues) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            String status;
+            try {
+                jedis.select(RedisConfig.redisDbnum); // 选择库
+                status = jedis.mset(keysvalues);
+            } catch (Exception e) {
+                LOGGER.error("Set key-values failed.", e);
+                status = "-1";
+            } finally {
+                JedisUtil.this.returnJedis(jedis);
+            }
+            return status;
+        }
+
+        /**
+         * 为多个key赋值。入参为map
+         * @param map
+         * @return
+         * @author qishao
+         * date 2018-09-28
+         */
+        public String mset(Map<String, String> map) {
+            if (CollectionUtils.isEmpty(map)) {
+                LOGGER.error("No key-values");
+                return null;
+            }
+            String[] keyvalues = new String[map.size() * 2];
+
+            List<String> keyvalueList = new ArrayList<>();
+            map.forEach((key, value) -> {
+                keyvalueList.add(key);
+                keyvalueList.add(value);
+            });
+            return mset(keyvalueList.toArray(keyvalues));
+        }
+        
+        /**
+         * 获取key对应的字符串，并根据左右偏移量截取（均为闭区间，和java.lang.String不同）
+         * @see java.lang.String
+         * @param key
+         * @param start
+         * @param end
+         * @return
+         * @author qishao
+         * date 2018-09-28
+         */
+        public String getrange(String key, long start, long end) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            String subValue;
+            try {
+                jedis.select(RedisConfig.redisDbnum); // 选择库
+                subValue = jedis.getrange(key, start, end);
+            } catch (Exception e) {
+                LOGGER.error("Get subString failed.", e);
+                subValue = null;
+            } finally {
+                JedisUtil.this.returnJedis(jedis);
+            }
+            return subValue;
+        }
+
+        /**
+         * 用指定的字符串覆盖给定key所储存的字符串值，覆盖的位置从偏移量offset开始。
+         * @param key
+         * @param value
+         * @param offset
+         * @return
+         * @author qishao
+         * date 2018-09-28
+         */
+        public long setrange(String key, String value, long offset) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            long status;
+            try {
+                jedis.select(RedisConfig.redisDbnum); // 选择库
+                status = jedis.setrange(key, offset, value);
+            } catch (Exception e) {
+                LOGGER.error("Setrange key's value failed.", e);
+                status = 0L;
+            } finally {
+                JedisUtil.this.returnJedis(jedis);
+            }
+            return status;
+        }
+
+        /**
+         * 设置指定key的值，并返回key的旧值。
+         * 如果key对应的类型不是String，返回null
+         * @param key
+         * @param value
+         * @return
+         * @author qishao
+         * date 2018-09-28
+         */
+        public String getSet(String key, String value) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            String oldValue;
+            try {
+                jedis.select(RedisConfig.redisDbnum); // 选择库
+                oldValue = jedis.getSet(key, value);
+            } catch (Exception e) {
+                LOGGER.error("GetSet key failed.", e);
+                oldValue = null;
+            } finally {
+                JedisUtil.this.returnJedis(jedis);
+            }
+            return oldValue;
+        }
+
+        /**
+         * 为指定的key对应的值追加
+         * 如果key原来不存在，此命令效果同set
+         * @param key
+         * @param suffix
+         * @return
+         * @author qishao
+         * date 2018-09-28
+         */
+        public long append(String key, String suffix) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            long status;
+            try {
+                jedis.select(RedisConfig.redisDbnum); // 选择库
+                status = jedis.append(key, suffix);
+            } catch (Exception e) {
+                LOGGER.error("Append key failed.", e);
+                status = 0L;
+            } finally {
+                JedisUtil.this.returnJedis(jedis);
+            }
+            return status;
+        }
+
+        /**
+         * 为key对应的值增加一个数字
+         * 如果值不能被解析为数字，返回-1
+         * @param key
+         * @param number
+         * @return
+         * @author qishao
+         * date 2018-09-28
+         */
+        public long incrBy(String key, long number) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            long len;
+            try {
+                jedis.select(RedisConfig.redisDbnum); // 选择库
+                len = jedis.incrBy(key, number);
+            } catch (Exception e) {
+                LOGGER.error("Increase key's value failed", e);
+                len = -1L;
+            } finally {
+                JedisUtil.this.returnJedis(jedis);
+            }
+            return len;
+        }
+
+        /**
+         * 为key对应的值减去一个数字
+         * 如果值不能被解析为数字，返回-1
+         * @param key
+         * @param number
+         * @return
+         * @author qishao
+         * date 2018-09-28
+         */
+        public long decrBy(String key, long number) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            long len;
+            try {
+                jedis.select(RedisConfig.redisDbnum); // 选择库
+                len = jedis.decrBy(key, number);
+            } catch (Exception e) {
+                LOGGER.error("Decrease key's value failed", e);
+                len = -1L;
+            } finally {
+                JedisUtil.this.returnJedis(jedis);
+            }
+            return len;
+        }
+
+        /**
+         * 获取key存储的字符串长度。
+         * @param key
+         * @return 
+         * @author qishao
+         * date 2018-09-28
+         */
+        public long strlen(String key) {
+            Jedis jedis = JedisUtil.this.getJedis();
+            long len;
+            try {
+                jedis.select(RedisConfig.redisDbnum); // 选择库
+                len = jedis.strlen(key);
+            } catch (Exception e) {
+                LOGGER.error("Get string's length failed.", e);
+                len = -1;
+            } finally {
+                JedisUtil.this.returnJedis(jedis);
+            }
+            return len;
         }
     }
 
