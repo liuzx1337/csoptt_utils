@@ -80,6 +80,12 @@
             <artifactId>httpclient</artifactId>
             <version>${http_version}</version>
         </dependency>
+        <!-- httpmime -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
+            <version>${http_version}</version>
+        </dependency>
     </dependencies>
 
     <build>
