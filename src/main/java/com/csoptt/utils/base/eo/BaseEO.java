@@ -13,29 +13,29 @@ public class BaseEO {
     /**
      * 所有表都有主键id
      */
-    protected Integer id;
+    private Integer id;
 
     /**
      * 数据创建人
      * 一般是userId
      */
-    protected String createUser;
+    private String createUser;
 
     /**
      * 数据创建时间
      */
-    protected Date createTime;
+    private Date createTime;
 
     /**
      * 数据最后编辑人
      * 一般是userId
      */
-    protected String updateUser;
+    private String updateUser;
 
     /**
      * 数据最后编辑时间
      */
-    protected Date updateTime;
+    private Date updateTime;
 
     /**
      * Gets the value of id.
