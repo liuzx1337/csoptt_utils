@@ -40,12 +40,12 @@ public enum DataBaseCodeEnums {
     /**
      * 查看表注释的sql语句
      */
-    private String qishao;
+    private String checkTableSql;
 
-    DataBaseCodeEnums(String driverClassName, String checkColumnSql, String qishao) {
+    DataBaseCodeEnums(String driverClassName, String checkColumnSql, String checkTableSql) {
         this.driverClassName = driverClassName;
         this.checkColumnSql = checkColumnSql;
-        this.qishao = qishao;
+        this.checkTableSql = checkTableSql;
     }
 
     /**
@@ -67,11 +67,11 @@ public enum DataBaseCodeEnums {
     }
 
     /**
-     * Gets the value of qishao.
+     * Gets the value of checkTableSql.
      *
-     * @return the value of qishao
+     * @return the value of checkTableSql
      */
-    public String getqishao() {
-        return qishao;
+    public String getCheckTableSql() {
+        return checkTableSql;
     }
 }

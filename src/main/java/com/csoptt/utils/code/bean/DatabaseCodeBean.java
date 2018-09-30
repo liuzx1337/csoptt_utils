@@ -139,7 +139,7 @@ public class DatabaseCodeBean {
             checkColumnSql = checkColumnSql.replace("@tableSchema", tableSchema);
         }
         // 查看表注释SQL
-        String checkTableCommentsSql = dbCodeEnum.getCheckTableCommentsSql().replace("@tableName", tableName);
+        String checkTableCommentsSql = dbCodeEnum.getCheckTableSql().replace("@tableName", tableName);
         if (!isOracle) {
             checkTableCommentsSql = checkTableCommentsSql.replace("@tableSchema", tableSchema);
         }
