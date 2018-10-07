@@ -137,7 +137,7 @@ public class HttpUtils {
      * @author qishao
      * date 2018-09-28
      */
-    public static String get(String url, Map<String, String> paramMap) {
+    public static ResponseMessage get(String url, Map<String, String> paramMap) {
         CloseableHttpClient client = HttpClientBuilder.create().build();
         if (CollectionUtils.isNotEmpty(paramMap)) {
             StringBuilder stringBuilder = new StringBuilder();
@@ -154,9 +154,10 @@ public class HttpUtils {
         try {
             response = client.execute(get);
             HttpEntity entity = response.getEntity();
-            return EntityUtils.toString(entity, Consts.UTF_8);
+            String data = EntityUtils.toString(entity, Consts.UTF_8);
+            return Result.success("0", "Http Get Success.", data);
         } catch (IOException e) {
-            throw new BaseException("-1", "Send Get Request failed.");
+            return Result.error("-1", "Http Get failed.", e.getMessage());
         } finally {
             close(client, response);
         }
@@ -170,7 +171,7 @@ public class HttpUtils {
      * @author qishao
      * date 2018-09-28
      */
-    public static String post(String url, String jsonBody) {
+    public static ResponseMessage post(String url, String jsonBody) {
         CloseableHttpClient client = HttpClientBuilder.create().build();
         HttpPost post = new HttpPost(url);
 
@@ -186,9 +187,10 @@ public class HttpUtils {
         try {
             response = client.execute(post);
             HttpEntity entity = response.getEntity();
-            return EntityUtils.toString(entity, Consts.UTF_8);
+            String data = EntityUtils.toString(entity, Consts.UTF_8);
+            return Result.success("0", "Http Post Success.", data);
         } catch (IOException e) {
-            throw new BaseException("-1", "Send Post Request failed.");
+            return Result.error("-1", "Http Post failed.", e.getMessage());
         } finally {
             close(client, response);
         }
@@ -205,7 +207,7 @@ public class HttpUtils {
      * @author qishao
      * date 2018-09-28
      */
-    public static String postFile(String url, Map<String, File> multipartMap, Map<String, Object> otherParamMap) {
+    public static ResponseMessage postFile(String url, Map<String, File> multipartMap, Map<String, Object> otherParamMap) {
         CloseableHttpClient client = HttpClientBuilder.create().build();
         HttpPost post = new HttpPost(url);
         
@@ -231,9 +233,10 @@ public class HttpUtils {
         try {
             response = client.execute(post);
             HttpEntity entity = response.getEntity();
-            return EntityUtils.toString(entity, Consts.UTF_8);
+            String data = EntityUtils.toString(entity, Consts.UTF_8);
+            return Result.success("0", "Multipart Post Success.", data);
         } catch (IOException e) {
-            throw new BaseException("-1", "Send Multipart Post Request failed.");
+            return Result.error("-1", "Multipart Post failed.", e.getMessage());
         } finally {
             close(client, response);
         }
