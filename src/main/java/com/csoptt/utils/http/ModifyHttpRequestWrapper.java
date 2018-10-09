@@ -79,7 +79,7 @@ public class ModifyHttpRequestWrapper extends HttpServletRequestWrapper {
     /**
      * 重写getInputStream()方法
      * 将requestBody持久化
-     * 根据是否进行XSS检测，对requestBody的处理也不同
+     * TODO 根据是否进行XSS检测，对requestBody的处理也不同
      */
     @Override
     public ServletInputStream getInputStream() throws IOException {
