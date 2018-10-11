@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * 调用请求返回的JSON本身对应的对象
  *
- * @author liuzixi
+ * @author qishao
  * @date 2018-10-09
  */
 public class ComponentResponseVO {

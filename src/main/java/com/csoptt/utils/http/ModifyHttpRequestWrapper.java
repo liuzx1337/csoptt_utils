@@ -1,5 +1,7 @@
 package com.csoptt.utils.http;
 
+import com.csoptt.utils.common.CollectionUtils;
+import com.csoptt.utils.common.JsoupUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +18,7 @@ import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,7 +26,7 @@ import java.util.Set;
  * 自定义处理Http请求的Wrapper
  * 目前支持持久化requestBody、自定义Header等功能
  *
- * @author liuzixi
+ * @author qishao
  * @date 2018-10-08
  */
 public class ModifyHttpRequestWrapper extends HttpServletRequestWrapper {
@@ -59,7 +62,7 @@ public class ModifyHttpRequestWrapper extends HttpServletRequestWrapper {
         try {
             requestBodyBytes = StreamUtils.copyToByteArray(request.getInputStream());
         } catch (IOException e) {
-            logger.error("Get inputstream from request failed.", e);
+            logger.error("Get inputStream from request failed.", e);
         }
         customHeaders = new HashMap<>();
     }
@@ -79,7 +82,7 @@ public class ModifyHttpRequestWrapper extends HttpServletRequestWrapper {
     /**
      * 重写getInputStream()方法
      * 将requestBody持久化
-     * TODO 根据是否进行XSS检测，对requestBody的处理也不同
+     * 根据是否进行XSS检测，对requestBody的处理也不同
      */
     @Override
     public ServletInputStream getInputStream() throws IOException {
@@ -87,7 +90,15 @@ public class ModifyHttpRequestWrapper extends HttpServletRequestWrapper {
             requestBodyBytes = new byte[0]; // 防止NullPointerException
         }
 
-        ByteArrayInputStream in = new ByteArrayInputStream(requestBodyBytes);
+        ByteArrayInputStream in;
+        // XSS字符替换
+        if (doXss) {
+            String str = new String(requestBodyBytes, "UTF-8");
+            String newJson = JsoupUtils.cleanParam(str);
+            in = new ByteArrayInputStream(newJson.getBytes("UTF-8"));
+        } else {
+            in = new ByteArrayInputStream(requestBodyBytes);
+        }
 
         return new ServletInputStream() {
             @Override
@@ -135,13 +146,22 @@ public class ModifyHttpRequestWrapper extends HttpServletRequestWrapper {
      */
     @Override
     public String getHeader(String name) {
+        if (doXss) {
+            name = JsoupUtils.clean(name);
+        }
         // 如果自定义存在
         String headerValue = customHeaders.get(name);
 
-        if (headerValue != null) {
-            return headerValue;
+        if (headerValue == null) {
+            headerValue = super.getHeader(name);
         }
-        return super.getHeader(name);
+
+        // XSS
+        if (doXss) {
+            headerValue = JsoupUtils.clean(headerValue);
+        }
+
+        return headerValue;
     }
 
     /**
@@ -158,6 +178,13 @@ public class ModifyHttpRequestWrapper extends HttpServletRequestWrapper {
         while (headerNamesInHeader.hasMoreElements()) {
             headerNameSet.add(headerNamesInHeader.nextElement());
         }
+        // XSS
+        if (doXss) {
+            Set<String> headerNameSetCleared = new HashSet<>();
+            headerNameSet.forEach(headerName -> headerNameSetCleared.add(JsoupUtils.clean(headerName)));
+            headerNameSet.clear();
+            headerNameSet.addAll(headerNameSetCleared);
+        }
         return Collections.enumeration(headerNameSet);
     }
 
@@ -165,7 +192,7 @@ public class ModifyHttpRequestWrapper extends HttpServletRequestWrapper {
      * 自定义Header内容
      * @param name
      * @param value
-     * @author liuzixi
+     * @author qishao
      * date 2018-10-08
      */
     public void putHeader(String name, String value) {
@@ -178,5 +205,67 @@ public class ModifyHttpRequestWrapper extends HttpServletRequestWrapper {
 
         // 2. 放入自定义的Map中
         customHeaders.put(name, value);
+    }
+
+    /**
+     * 获取参数用XSS过滤
+     *
+     * @param name
+     */
+    @Override
+    public String getParameter(String name) {
+        boolean flag = !("content".equals(name) || name.endsWith("WithHtml"));
+        if (flag || doXss) {
+            name = JsoupUtils.clean(name);
+
+            String value = super.getParameter(name);
+            if (StringUtils.isNotBlank(value)) {
+                value = JsoupUtils.clean(value);
+            }
+
+            return value;
+        } else {
+            return super.getParameter(name);
+        }
+    }
+
+    /**
+     * 获取参数用XSS过滤
+     */
+    @Override
+    public Map<String, String[]> getParameterMap() {
+        Map<String, String[]> paramMap = super.getParameterMap();
+        if (CollectionUtils.isEmpty(paramMap)) {
+            return paramMap;
+        }
+        
+        if (doXss) {
+            paramMap.forEach((name, values) -> {
+                if (CollectionUtils.isNotEmpty(values)) {
+                    for (int i = 0, len = values.length; i < len; i++) {
+                        values[i] = JsoupUtils.clean(values[i]);
+                    }
+                }
+            });
+        }
+        return paramMap;
+    }
+
+    /**
+     * 获取参数用XSS过滤
+     *
+     * @param name
+     */
+    @Override
+    public String[] getParameterValues(String name) {
+        String[] values = super.getParameterValues(name);
+        if (CollectionUtils.isNotEmpty(values)) {
+            if (doXss) {
+                for (int i = 0, len = values.length; i < len; i++) {
+                    values[i] = JsoupUtils.clean(values[i]);
+                }
+            }
+        }
+        return values;
     }
 }

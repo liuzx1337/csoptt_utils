@@ -1,16 +1,24 @@
 package com.csoptt.utils.sonar;
 
-import com.alibaba.fastjson.JSONObject;
-import com.csoptt.utils.http.HttpUtils;
-import com.csoptt.utils.http.ResponseMessage;
-import com.csoptt.utils.sonar.vo.ComponentResponseVO;
-import com.csoptt.utils.sonar.vo.ComponentVO;
-import com.csoptt.utils.sonar.vo.MeasureVO;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.csoptt.utils.sonar.bean.MeasureComponent;
+import com.csoptt.utils.sonar.query.MeasureComponentQuery;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.Credentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.wsclient.Host;
+import org.sonar.wsclient.Sonar;
+import org.sonar.wsclient.connectors.HttpClient4Connector;
+import org.sonar.wsclient.services.Measure;
 
 /**
  * 利用sonar查看代码质量的工具类
@@ -20,22 +28,27 @@ import java.util.Map;
  */
 public class SonarUtils {
 
-    public static void main(String[] args) {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SonarUtils.class);
+
+    public static void main(String[] args) throws Exception {
         // HttpGet
         String url = "http://10.10.10.37:9000/api/measures/component";
-        Map<String, String> paramMap = new HashMap<>();
-        paramMap.put("componentKey", "competitive");
-        paramMap.put("metricKeys", "ncloc");
 
-        ResponseMessage response = HttpUtils.get(url, paramMap, "admin", "admin");
-        String data = response.getData().toString();
-        ComponentResponseVO responseVO = JSONObject.parseObject(data, ComponentResponseVO.class);
-        ComponentVO componentVO = responseVO.getComponent();
-        List<MeasureVO> measures = componentVO.getMeasures();
-        MeasureVO nclosMeasure = measures.stream().filter(m -> StringUtils.equals("nclos", m.getMetric()))
-                .findFirst().orElse(null);
-        if (null != nclosMeasure) {
-            System.out.println(nclosMeasure.getValue());
-        }
+        HttpClientContext context = HttpClientContext.create();
+        CredentialsProvider provider = new BasicCredentialsProvider();
+        Credentials credentials = new UsernamePasswordCredentials("admin", "admin");
+        provider.setCredentials(AuthScope.ANY, credentials);
+        context.setCredentialsProvider(provider);
+
+        CloseableHttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+        HttpGet get = new HttpGet(url);
+
+//        Host host = new Host("http://10.10.10.37:9000", "admin", "admin");
+//        HttpClient4Connector connector = new HttpClient4Connector(host);
+//        Sonar sonar = new Sonar(connector);
+//        MeasureComponent measureComponent = sonar.find(MeasureComponentQuery.create("competitive", "ncloc"));
+//        Measure measure = measureComponent.getComponent().getMeasures().get(0);
+//        Double value = measure.getValue();
+//        LOGGER.info(String.valueOf(value));
     }
 }

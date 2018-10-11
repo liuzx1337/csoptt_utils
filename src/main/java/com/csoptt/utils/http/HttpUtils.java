@@ -126,7 +126,7 @@ public class HttpUtils {
      * @param username
      * @param password
      * @return
-     * @author liuzixi
+     * @author qishao
      * date 2018-10-09
      */
     private static CloseableHttpClient getHttpClient(boolean doBasicAuth,
