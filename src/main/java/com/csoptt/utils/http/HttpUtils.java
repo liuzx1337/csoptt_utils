@@ -2,9 +2,11 @@ package com.csoptt.utils.http;
 
 import com.csoptt.utils.common.CollectionUtils;
 import com.csoptt.utils.common.GsonUtils;
-import com.csoptt.utils.exception.BaseException;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.EntityBuilder;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -15,8 +17,9 @@ import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,6 +121,25 @@ public class HttpUtils {
     }
 
     /**
+     * 获取httpClient
+     * @param doBasicAuth
+     * @param username
+     * @param password
+     * @return
+     * @author qishao
+     * date 2018-10-09
+     */
+    private static CloseableHttpClient getHttpClient(boolean doBasicAuth,
+                                                     String username, String password) {
+        if (doBasicAuth) {
+            CredentialsProvider provider = new BasicCredentialsProvider();
+            provider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
+            return HttpClients.custom().setDefaultCredentialsProvider(provider).build();
+        }
+        return HttpClients.custom().build();
+    }
+
+    /**
      * 获取请求属性
      * @return
      * @author qishao
@@ -133,12 +155,15 @@ public class HttpUtils {
      * 发送get请求
      * @param url
      * @param paramMap
+     * @param username
+     * @param password
      * @return
      * @author qishao
      * date 2018-09-28
      */
-    public static ResponseMessage get(String url, Map<String, String> paramMap) {
-        CloseableHttpClient client = HttpClientBuilder.create().build();
+    public static ResponseMessage get(String url, Map<String, String> paramMap,
+                                      String username, String password) {
+        CloseableHttpClient client = getHttpClient(null != username, username, password);
         if (CollectionUtils.isNotEmpty(paramMap)) {
             StringBuilder stringBuilder = new StringBuilder();
             paramMap.forEach((key, value) -> {
@@ -167,12 +192,15 @@ public class HttpUtils {
      * 发送post请求
      * @param url
      * @param jsonBody
+     * @param username
+     * @param password
      * @return
      * @author qishao
      * date 2018-09-28
      */
-    public static ResponseMessage post(String url, String jsonBody) {
-        CloseableHttpClient client = HttpClientBuilder.create().build();
+    public static ResponseMessage post(String url, String jsonBody,
+                                       String username, String password) {
+        CloseableHttpClient client = getHttpClient(null != username, username, password);
         HttpPost post = new HttpPost(url);
 
         // json格式的requestbody
@@ -203,12 +231,16 @@ public class HttpUtils {
      * @param url
      * @param multipartMap
      * @param otherParamMap
+     * @param username
+     * @param password
      * @return 
      * @author qishao
      * date 2018-09-28
      */
-    public static ResponseMessage postFile(String url, Map<String, File> multipartMap, Map<String, Object> otherParamMap) {
-        CloseableHttpClient client = HttpClientBuilder.create().build();
+    public static ResponseMessage postFile(String url, Map<String, File> multipartMap,
+                                           Map<String, Object> otherParamMap,
+                                           String username, String password) {
+        CloseableHttpClient client = getHttpClient(null != username, username, password);
         HttpPost post = new HttpPost(url);
         
         MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
