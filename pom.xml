@@ -119,5 +119,6 @@
                 </configuration>
             </plugin>
         </plugins>
+        <finalName>csoptt-utils</finalName>
     </build>
 </project>
