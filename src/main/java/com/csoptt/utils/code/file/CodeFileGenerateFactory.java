@@ -52,7 +52,8 @@ public class CodeFileGenerateFactory {
         Properties properties = new Properties();
         properties.setProperty("resource.loader", "file");
         properties.setProperty("file.resource.loader.description", "Velocity File Resource Loader");
-//        properties.setProperty("file.resource.loader.path", templateBasePath);
+        properties.setProperty("file.resource.loader.path", System.getProperty("user.dir").replace("\\", "/")
+            + "src/main/resources/templates");
         properties.setProperty("file.resource.loader.cache", "true");
         properties.setProperty("file.resource.loader.modificationCheckInterval", "30");
         properties.setProperty("runtime.log.logsystem.class", "org.apache.velocity.runtime.log.Log4JLogChute");
