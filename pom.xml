@@ -126,4 +126,12 @@
         </plugins>
         <finalName>csoptt-utils</finalName>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>releases</id>
+            <name>Releases</name>
+            <url>http://123.127.164.29:54008/nexus/content/repositories/releases/</url>
+        </repository>
+    </distributionManagement>
 </project>

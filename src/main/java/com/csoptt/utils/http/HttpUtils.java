@@ -152,7 +152,19 @@ public class HttpUtils {
     }
 
     /**
-     * 发送get请求
+     * 发送get请求，不需要密码
+     * @param url
+     * @param paramMap
+     * @return 
+     * @author qishao
+     * date 2018-10-24
+     */
+    public static ResponseMessage get(String url, Map<String, String> paramMap) {
+        return get(url, paramMap, null, null);
+    }
+
+    /**
+     * 发送get请求，需要密码
      * @param url
      * @param paramMap
      * @param username
@@ -189,7 +201,19 @@ public class HttpUtils {
     }
 
     /**
-     * 发送post请求
+     * 发送post请求，不需要密码
+     * @param url
+     * @param jsonBody
+     * @return 
+     * @author qishao
+     * date 2018-10-24
+     */
+    public static ResponseMessage post(String url, String jsonBody) {
+        return post(url, jsonBody, null, null);
+    }
+
+    /**
+     * 发送post请求，需要密码
      * @param url
      * @param jsonBody
      * @param username
@@ -222,6 +246,20 @@ public class HttpUtils {
         } finally {
             close(client, response);
         }
+    }
+
+    /**
+     * 发送post请求，传输文件，需要密码
+     * @param url
+     * @param multipartMap
+     * @param otherParamMap
+     * @return 
+     * @author qishao
+     * date 2018-10-24
+     */
+    public static ResponseMessage postFile(String url, Map<String, File> multipartMap,
+                                           Map<String, Object> otherParamMap) {
+        return postFile(url, multipartMap, otherParamMap, null, null);
     }
 
     /**
