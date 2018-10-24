@@ -58,11 +58,6 @@ public class HttpUtils {
     private static int connectionRequestTimeout = 60000;
 
     /**
-     * 请求属性
-     */
-    private static RequestConfig requestConfig;
-
-    /**
      * Multipart时所使用的contentType
      */
     private static final ContentType TEXT_PLAIN = ContentType.create("text/plain", Consts.UTF_8);
@@ -146,9 +141,8 @@ public class HttpUtils {
      * date 2018-09-28
      */
     private static RequestConfig getConfig() {
-        requestConfig = RequestConfig.custom().setSocketTimeout(socketTimeout)
+        return RequestConfig.custom().setSocketTimeout(socketTimeout)
                 .setConnectTimeout(connectTimeout).setConnectionRequestTimeout(connectionRequestTimeout).build();
-        return requestConfig;
     }
 
     /**
