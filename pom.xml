@@ -126,4 +126,12 @@
         </plugins>
         <finalName>csoptt-utils</finalName>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>qishao_nexus_releases</id>
+            <name>qishao_nexus_releases</name>
+            <url>http://138.128.201.122:1337/repository/maven-releases/</url>
+        </repository>
+    </distributionManagement>
 </project>
