@@ -79,12 +79,6 @@
             <artifactId>httpmime</artifactId>
             <version>${http_version}</version>
         </dependency>
-        <!-- velocity -->
-        <dependency>
-            <groupId>org.apache.velocity</groupId>
-            <artifactId>velocity</artifactId>
-            <version>1.7</version>
-        </dependency>
         <!-- javax.servlet-api -->
         <dependency>
             <groupId>javax.servlet</groupId>
