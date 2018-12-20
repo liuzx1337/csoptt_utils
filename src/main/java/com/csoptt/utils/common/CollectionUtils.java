@@ -10,7 +10,7 @@ import java.util.Map;
  * @author qishao
  * @date 2018-09-05
  */
-public class CollectionUtils {
+public final class CollectionUtils {
     /**
      * 无法生成对象
      */

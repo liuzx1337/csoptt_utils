@@ -19,12 +19,18 @@ import java.util.Map;
  * @author qishao
  * @date 2018-09-28
  */
-public class MapUtils {
+public final class MapUtils {
 
     /**
      * Log4j
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(MapUtils.class);
+
+    /**
+     * 无法生成对象
+     */
+    private MapUtils() {
+    }
 
     /**
      * 将javaBean转换为Map

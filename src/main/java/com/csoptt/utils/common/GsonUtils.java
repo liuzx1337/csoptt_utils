@@ -14,7 +14,7 @@ import java.util.List;
  * @author qishao
  * @date 2018-09-06
  */
-public class GsonUtils {
+public final class GsonUtils {
     /**
      * 无法创建对象
      */

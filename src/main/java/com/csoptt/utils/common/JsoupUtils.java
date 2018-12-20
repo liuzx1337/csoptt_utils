@@ -14,7 +14,7 @@ import java.util.Set;
  * @author qishao
  * @date 2018-10-08
  */
-public class JsoupUtils {
+public final class JsoupUtils {
 
     /**
      * basicWithImages白名单
@@ -29,6 +29,12 @@ public class JsoupUtils {
          * 故需要给标签加上style属性
          */
         WHITELIST.addAttributes(":all", "style");
+    }
+
+    /**
+     * 无法生成对象
+     */
+    private JsoupUtils() {
     }
 
     /**

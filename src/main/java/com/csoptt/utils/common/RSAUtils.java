@@ -62,6 +62,12 @@ public final class RSAUtils {
     private static final int KEY_SIZE = 1024;
 
     /**
+     * 无法生成对象
+     */
+    private RSAUtils() {
+    }
+
+    /**
      * 初始化密钥对
      * 可随机生成一套成对的公私密钥
      *

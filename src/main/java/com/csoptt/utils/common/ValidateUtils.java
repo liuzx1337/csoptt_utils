@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
  * @author qishao
  * @date 2018-09-06
  */
-public class ValidateUtils {
+public final class ValidateUtils {
     /**
      * 无法创建对象
      */

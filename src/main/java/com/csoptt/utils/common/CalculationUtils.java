@@ -8,7 +8,7 @@ import java.math.BigDecimal;
  * @author qishao
  * @date 2018-09-06
  */
-public class CalculationUtils {
+public final class CalculationUtils {
     /**
      * 无法创建对象
      */
